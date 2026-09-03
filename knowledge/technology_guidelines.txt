@@ -1,0 +1,43 @@
+IDEAFORGE AI - TECHNOLOGY GUIDELINES
+
+PYTHON:
+Python is suitable for AI, machine learning, NLP, backend development, automation, and rapid prototyping.
+
+STREAMLIT:
+Streamlit is suitable for quickly creating interactive Python-based data and AI applications.
+
+FASTAPI:
+FastAPI is suitable for building Python APIs and backend services.
+
+REACT:
+React is suitable for building interactive web frontends when a separate frontend is required.
+
+SQL:
+SQL databases are suitable for structured relational data.
+
+MONGODB:
+MongoDB is suitable for flexible document-oriented data.
+
+MACHINE LEARNING:
+Machine learning can be used when a project requires prediction, classification, recommendation, or pattern recognition.
+
+NLP:
+Natural Language Processing is useful for applications that process or understand human language.
+
+LLM:
+Large Language Models are useful for text generation, question answering, summarization, reasoning, conversational applications, and content generation.
+
+RAG:
+Retrieval-Augmented Generation combines information retrieval with an LLM. Relevant information is retrieved from a knowledge base and provided to the LLM so that its response can be grounded in that information.
+
+EMBEDDINGS:
+Embeddings represent text as numerical vectors so that semantically similar information can be retrieved.
+
+VECTOR DATABASE:
+A vector database stores embeddings and allows similarity-based retrieval.
+
+API:
+An API allows an application to communicate with an external service such as an LLM provider.
+
+TECHNOLOGY SELECTION:
+Technology should be selected according to the project's requirements, team skills, development time, scalability requirements, and complexity.

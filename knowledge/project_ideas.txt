@@ -1,0 +1,238 @@
+PROJECT IDEA 1
+
+Title:
+AI-Powered Student Project Recommendation System
+
+Category:
+Generative AI, Education, NLP
+
+Difficulty:
+Intermediate
+
+Description:
+An AI system that recommends suitable final-year project ideas to college students based on their skills, interests, preferred difficulty level, and project requirements.
+
+Technologies:
+Python, Streamlit, NLP, Generative AI, RAG, ChromaDB, Ollama
+
+AI Components:
+Embeddings, semantic search, Retrieval-Augmented Generation, Large Language Model
+
+Suitable Skills:
+Python, NLP, Machine Learning, Generative AI
+
+Suitable Interests:
+Education, Chatbots, Generative AI, Recommendation Systems
+
+Project Scope:
+The system can collect student information, retrieve relevant project knowledge, generate project recommendations, explain why each project is suitable, and provide a final recommendation.
+
+
+PROJECT IDEA 2
+
+Title:
+RAG-Based College Knowledge Assistant
+
+Category:
+Generative AI, Education, RAG
+
+Difficulty:
+Intermediate
+
+Description:
+A question-answering assistant that allows college students to ask questions about academic information stored in a knowledge base. The system retrieves relevant information before generating an answer.
+
+Technologies:
+Python, Streamlit, RAG, ChromaDB, Ollama
+
+AI Components:
+Embeddings, semantic search, Retrieval-Augmented Generation, Large Language Model
+
+Suitable Skills:
+Python, NLP, Generative AI
+
+Suitable Interests:
+Education, Chatbots, Knowledge Assistants
+
+Project Scope:
+The system can process educational documents, create embeddings, retrieve relevant information, and generate answers using an LLM.
+
+
+PROJECT IDEA 3
+
+Title:
+AI Resume Analyzer
+
+Category:
+Generative AI, NLP, Career
+
+Difficulty:
+Intermediate
+
+Description:
+An AI application that analyzes a student's resume and identifies skills, strengths, missing skills, and possible improvements.
+
+Technologies:
+Python, Streamlit, NLP, Generative AI, Ollama
+
+AI Components:
+Natural Language Processing, embeddings, Large Language Model
+
+Suitable Skills:
+Python, NLP, Machine Learning
+
+Suitable Interests:
+Career Development, Generative AI, NLP
+
+Project Scope:
+The system can accept resume text, analyze the content, identify important skills, provide improvement suggestions, and generate a summary.
+
+
+PROJECT IDEA 4
+
+Title:
+AI Career Guidance Assistant
+
+Category:
+Generative AI, Education, Career
+
+Difficulty:
+Intermediate
+
+Description:
+A conversational AI assistant that helps students explore suitable career paths based on their skills, interests, educational background, and career goals.
+
+Technologies:
+Python, Streamlit, NLP, Generative AI, Ollama
+
+AI Components:
+Natural Language Processing, embeddings, Large Language Model
+
+Suitable Skills:
+Python, NLP, Machine Learning
+
+Suitable Interests:
+Education, Career Guidance, Chatbots, Generative AI
+
+Project Scope:
+The system can collect student information, identify relevant career areas, explain suitable career options, and provide personalized guidance.
+
+
+PROJECT IDEA 5
+
+Title:
+AI-Powered Study Assistant
+
+Category:
+Generative AI, Education, NLP
+
+Difficulty:
+Intermediate
+
+Description:
+An AI study assistant that helps students understand study materials, summarize content, answer questions, and generate learning resources.
+
+Technologies:
+Python, Streamlit, RAG, ChromaDB, Ollama
+
+AI Components:
+Embeddings, Retrieval-Augmented Generation, Natural Language Processing, Large Language Model
+
+Suitable Skills:
+Python, NLP, Generative AI
+
+Suitable Interests:
+Education, Chatbots, Generative AI
+
+Project Scope:
+The system can process study materials, retrieve relevant content, answer questions, summarize documents, and generate educational explanations.
+
+
+PROJECT IDEA 6
+
+Title:
+AI Sentiment Analysis Dashboard
+
+Category:
+Machine Learning, NLP, Data Analysis
+
+Difficulty:
+Intermediate
+
+Description:
+An application that analyzes text sentiment and classifies user feedback or reviews as positive, negative, or neutral.
+
+Technologies:
+Python, Streamlit, NLP, Machine Learning, scikit-learn
+
+AI Components:
+Text preprocessing, feature extraction, sentiment classification, machine learning
+
+Suitable Skills:
+Python, NLP, Machine Learning
+
+Suitable Interests:
+NLP, Data Analysis, Machine Learning
+
+Project Scope:
+The system can accept text data, preprocess the text, classify sentiment, display results, and provide basic analytics.
+
+
+PROJECT IDEA 7
+
+Title:
+AI Document Question Answering System
+
+Category:
+Generative AI, RAG, NLP
+
+Difficulty:
+Advanced
+
+Description:
+An AI system that allows users to upload documents and ask questions about their content. The system retrieves relevant document sections and uses an LLM to generate answers.
+
+Technologies:
+Python, Streamlit, RAG, ChromaDB, Ollama
+
+AI Components:
+Document processing, embeddings, semantic search, Retrieval-Augmented Generation, Large Language Model
+
+Suitable Skills:
+Python, NLP, Generative AI, RAG
+
+Suitable Interests:
+Document AI, Chatbots, Generative AI
+
+Project Scope:
+The system can process documents, split them into chunks, generate embeddings, store them in a vector database, retrieve relevant chunks, and generate answers using an LLM.
+
+
+PROJECT IDEA 8
+
+Title:
+AI Learning Path Recommendation System
+
+Category:
+Generative AI, Education, Recommendation Systems
+
+Difficulty:
+Advanced
+
+Description:
+An AI system that recommends a personalized learning path for students based on their existing skills, interests, career goals, and preferred difficulty.
+
+Technologies:
+Python, Streamlit, Generative AI, RAG, ChromaDB, Ollama
+
+AI Components:
+Embeddings, semantic retrieval, Retrieval-Augmented Generation, Large Language Model
+
+Suitable Skills:
+Python, Machine Learning, NLP, Generative AI
+
+Suitable Interests:
+Education, Career Development, Recommendation Systems
+
+Project Scope:
+The system can analyze a student's current skills, identify skill gaps, retrieve relevant learning resources, and generate a personalized learning roadmap.

@@ -1,0 +1,41 @@
+IDEAFORGE AI - PROJECT EVALUATION CRITERIA
+
+IdeaForge can evaluate project ideas using the following criteria.
+
+1. PROBLEM CLARITY:
+Is the problem clearly defined?
+
+2. USEFULNESS:
+Does the project provide meaningful value to its intended users?
+
+3. FEASIBILITY:
+Can the project realistically be developed using the available skills, time, resources, and technology?
+
+4. TECHNICAL COMPLEXITY:
+Is the technical complexity appropriate for the project's level?
+
+5. ORIGINALITY:
+Does the project have a meaningful or differentiated aspect?
+
+6. SCOPE:
+Is the project scope manageable?
+
+7. TECHNOLOGY FIT:
+Are the selected technologies appropriate for the requirements?
+
+8. AI RELEVANCE:
+If Generative AI or other AI techniques are used, is AI actually useful for solving the problem?
+
+9. DATA REQUIREMENTS:
+Does the project require datasets, documents, APIs, or other information?
+
+10. DEVELOPMENT TIME:
+Can the project reasonably be completed within the available development period?
+
+11. RISKS:
+What technical, data, integration, security, or scalability risks may occur?
+
+12. FUTURE POTENTIAL:
+Can the project be improved or extended in the future?
+
+A strong project should have a clear problem, useful solution, realistic scope, appropriate technology, reasonable feasibility, and a meaningful implementation plan.

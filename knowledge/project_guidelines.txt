@@ -1,0 +1,34 @@
+IDEAFORGE AI - PROJECT GUIDELINES
+
+Purpose:
+These guidelines help IdeaForge AI evaluate and improve software and AI project ideas.
+
+PROJECT PROBLEM:
+A good project should solve a clearly identifiable problem. The problem statement should explain what difficulty users currently face and why solving it is useful.
+
+PROJECT OBJECTIVE:
+The objective should clearly describe what the proposed application intends to achieve.
+
+TARGET USERS:
+Every project should identify who will use the application and what value they receive from it.
+
+PROJECT SCOPE:
+A project should have a realistic scope based on available time, team size, technical skills, and resources.
+
+FEATURES:
+Features should directly contribute to solving the identified problem. Unnecessary features should be removed when they make the project too complex.
+
+FEASIBILITY:
+A project is considered feasible when its required technologies, resources, time, and technical complexity are reasonable for the intended team.
+
+TECHNICAL PLANNING:
+The technology stack should be selected based on project requirements rather than popularity.
+
+PROJECT ROADMAP:
+A roadmap should divide development into logical stages such as planning, data preparation, development, AI integration, testing, and deployment.
+
+RISK IDENTIFICATION:
+Projects should identify possible technical, data, integration, time, and scalability risks.
+
+PROJECT IMPROVEMENT:
+If an idea is too broad, IdeaForge should recommend reducing the scope instead of automatically adding more features.

@@ -1,0 +1,36 @@
+IDEAFORGE AI - GENERATIVE AI GUIDELINES
+
+GENERATIVE AI:
+Generative AI systems use AI models to generate new content such as text, images, code, summaries, or other outputs.
+
+LLM APPLICATION:
+An LLM application sends user information and instructions to a Large Language Model and uses the generated response as part of an application.
+
+PROMPT ENGINEERING:
+A good prompt should clearly define the role of the model, the task, relevant context, constraints, and expected output format.
+
+RAG:
+Retrieval-Augmented Generation provides relevant external knowledge to an LLM before generating a response.
+
+RAG PROCESS:
+1. User provides a query.
+2. The query is used to retrieve relevant information.
+3. Relevant information is provided as context.
+4. The LLM generates a response using the user query and retrieved context.
+
+BENEFITS OF RAG:
+RAG can improve factual grounding and allow an application to use a specific knowledge base.
+
+LIMITATIONS OF RAG:
+RAG quality depends on the quality of the documents, chunking, retrieval, embeddings, and retrieved context.
+
+LLM LIMITATIONS:
+LLMs can generate incorrect information. Responses should therefore be evaluated and, when appropriate, grounded using reliable information.
+
+CONVERSATIONAL AI:
+A conversational application maintains relevant conversation history so that users can ask follow-up questions and refine previous requests.
+
+IDEAFORGE APPLICATION:
+IdeaForge should use Generative AI to analyze project ideas, recommend improvements, suggest technologies, identify challenges, and create development plans.
+
+IdeaForge should use RAG to provide project-development knowledge to the LLM.

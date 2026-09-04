@@ -1,4 +1,6 @@
 streamlit
 chromadb
-ollama
 reportlab
+sentence-transformers
+groq
+python-dotenv

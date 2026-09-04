@@ -1,10 +1,20 @@
 import streamlit as st
 import chromadb
 import ollama
+from groq import Groq
+from dotenv import load_dotenv
+import os
 import json
 import re
 import io
 from datetime import datetime
+from sentence_transformers import SentenceTransformer
+
+load_dotenv()
+
+groq_client = Groq(
+    api_key=os.getenv("GROQ_API_KEY")
+)
 
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import (
@@ -49,7 +59,6 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-
     .main-title {
         font-size: 42px;
         font-weight: 800;
@@ -98,7 +107,6 @@ st.markdown(
         background-color: #fff8e1;
         border: 1px solid #ffcc80;
     }
-
     </style>
     """,
     unsafe_allow_html=True
@@ -160,7 +168,7 @@ if "last_analysis" not in st.session_state:
 
 
 # ============================================================
-# OLLAMA CHAT
+# GROQ CHAT
 # ============================================================
 
 def ollama_chat(prompt, system_prompt=None):
@@ -185,39 +193,31 @@ def ollama_chat(prompt, system_prompt=None):
             }
         )
 
-        response = ollama.chat(
-            model=OLLAMA_MODEL,
-            messages=messages
+        response = groq_client.chat.completions.create(
+            model="openai/gpt-oss-120b",
+            messages=messages,
+            temperature=0.2
         )
 
-        return response["message"]["content"]
+        return response.choices[0].message.content
 
     except Exception as e:
 
-        return f"OLLAMA_ERROR: {str(e)}"
+        return f"GROQ_ERROR: {str(e)}"
 
 
 # ============================================================
 # EMBEDDINGS
 # ============================================================
 
+embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+
+
 def create_embedding(text):
-
     try:
-
-        response = ollama.embeddings(
-            model=EMBED_MODEL,
-            prompt=text
-        )
-
-        return response["embedding"]
-
+        return embedding_model.encode(text).tolist()
     except Exception as e:
-
-        st.warning(
-            f"Embedding error: {e}"
-        )
-
+        st.warning(f"Embedding error: {e}")
         return None
 
 
@@ -250,6 +250,7 @@ def load_chroma():
             if "project" in name.lower():
 
                 selected_collection = name
+
                 break
 
         if selected_collection is None:
@@ -322,6 +323,7 @@ def retrieve_context(query, top_k=5):
 def extract_json(text):
 
     if not text:
+
         return None
 
     text = text.strip()
@@ -340,6 +342,7 @@ def extract_json(text):
     )
 
     start = text.find("{")
+
     end = text.rfind("}")
 
     if start == -1 or end == -1:
@@ -368,6 +371,7 @@ def extract_json(text):
 def normalize_project(data):
 
     text_fields = [
+
         "name",
         "domain",
         "problem",
@@ -379,9 +383,11 @@ def normalize_project(data):
         "difficulty",
         "feasibility",
         "reasoning"
+
     ]
 
     list_fields = [
+
         "ai_features",
         "features",
         "technologies",
@@ -392,6 +398,7 @@ def normalize_project(data):
         "improvements",
         "alternatives",
         "skills"
+
     ]
 
     for field in text_fields:
@@ -409,6 +416,7 @@ def normalize_project(data):
     for field in list_fields:
 
         if field not in data:
+
             continue
 
         value = data[field]
@@ -430,9 +438,13 @@ def normalize_project(data):
         elif isinstance(value, str):
 
             items = [
+
                 x.strip()
+
                 for x in value.split(",")
+
                 if x.strip()
+
             ]
 
             st.session_state.project[field] = items
@@ -447,68 +459,91 @@ def project_to_text():
     p = st.session_state.project
 
     return f"""
+
 PROJECT NAME:
+
 {p["name"]}
 
 DOMAIN:
+
 {p["domain"]}
 
 PROBLEM:
+
 {p["problem"]}
 
 SOLUTION:
+
 {p["solution"]}
 
 TARGET USERS:
+
 {p["target_users"]}
 
 PLATFORM:
+
 {p["platform"]}
 
 AI FEATURES:
+
 {", ".join(p["ai_features"])}
 
 CORE FEATURES:
+
 {", ".join(p["features"])}
 
 TECHNOLOGIES:
+
 {", ".join(p["technologies"])}
 
 AI MODELS:
+
 {", ".join(p["models"])}
 
 RAG:
+
 {p["rag"]}
 
 DATABASE:
+
 {p["database"]}
 
 DIFFICULTY:
+
 {p["difficulty"]}
 
 FEASIBILITY:
+
 {p["feasibility"]}
 
 DATA REQUIREMENTS:
+
 {", ".join(p["data_requirements"])}
 
 MODULES:
+
 {", ".join(p["modules"])}
 
 WORKFLOW:
+
 {" -> ".join(p["workflow"])}
 
 IMPROVEMENTS:
+
 {", ".join(p["improvements"])}
 
 ALTERNATIVES:
+
 {", ".join(p["alternatives"])}
 
 SKILLS:
+
 {", ".join(p["skills"])}
 
 REASONING:
+
 {p["reasoning"]}
+
 """
 
 
@@ -524,22 +559,31 @@ def analyze_project(
 ):
 
     rag_query = f"""
+
 Project idea:
+
 {idea}
 
 Skills:
+
 {skills}
 
 Interests:
+
 {interests}
 
 Difficulty:
+
 {difficulty}
 
 Find relevant project architecture,
+
 AI approaches, technologies,
+
 datasets, RAG approaches,
+
 models and implementation ideas.
+
 """
 
     documents, metadatas = retrieve_context(
@@ -554,6 +598,7 @@ models and implementation ideas.
     )
 
     system_prompt = """
+
 You are IdeaForge AI.
 
 You are an expert AI project development advisor.
@@ -583,9 +628,11 @@ A playlist recommendation system is NOT automatically
 a music-generation system.
 
 Return ONLY valid JSON.
+
 """
 
     prompt = f"""
+
 USER PROJECT IDEA:
 
 {idea}
@@ -638,15 +685,24 @@ Return EXACTLY:
 IMPORTANT:
 
 - Preserve the user's original idea.
+
 - Features must belong to the domain.
+
 - AI must have a real purpose.
+
 - RAG must have a real purpose.
+
 - Recommend realistic models.
+
 - Do not claim the system generates audio if it only
   recommends existing music.
+
 - Workflow must be logical.
+
 - Do not create duplicate modules.
+
 - Keep the project feasible for a student.
+
 """
 
     result = ollama_chat(
@@ -665,6 +721,7 @@ IMPORTANT:
         )
 
         st.session_state.analysis_done = True
+
         st.session_state.last_analysis = result
 
         return True
@@ -705,6 +762,7 @@ def recent_chat_text():
 def understand_chat(user_message):
 
     system_prompt = """
+
 You are the intent-understanding engine of IdeaForge AI.
 
 The user is discussing ONE current project.
@@ -714,20 +772,35 @@ Use BOTH the current project and the conversation history.
 Possible intents:
 
 question
+
 add_feature
+
 remove_feature
+
 modify_feature
+
 improve
+
 alternative
+
 technology
+
 ai_model
+
 rag_question
+
 feasibility
+
 workflow
+
 project_change
+
 finalize
+
 reject
+
 general
+
 
 IMPORTANT:
 
@@ -751,35 +824,138 @@ If the user says:
 
 identify the feature from conversation history.
 
-Return ONLY JSON.
 
-Use:
+IMPORTANT FOR ADD FEATURE:
+
+If the user asks to add a feature but does NOT
+specify the feature name, the intent must still be:
 
 {
-    "intent": "",
+    "intent": "add_feature",
     "target": "",
     "value": "",
-    "confidence": 0.0
+    "confidence": 1.0
 }
 
+Examples:
+
+"Add a new feature"
+
+"Add an additional feature"
+
+"I want to add a feature"
+
+"Can you add something useful?"
+
+"Think of a new feature"
+
+All of these should return:
+
+{
+    "intent": "add_feature",
+    "target": "",
+    "value": "",
+    "confidence": 1.0
+}
+
+
 For add_feature:
+
 target = the feature to add.
 
+If the user did not specify a feature,
+target must be an empty string.
+
+
 For remove_feature:
+
 target = the feature to remove.
 
+
 For modify_feature:
+
 target = existing feature.
+
 value = new version.
 
+
+For project_change:
+
+target = the project field being changed.
+
+value = the new value.
+
+
+Examples:
+
+User:
+
+"Change the target audience to college students."
+
+Return:
+
+{
+    "intent": "project_change",
+    "target": "target_users",
+    "value": "College students",
+    "confidence": 1.0
+}
+
+
+User:
+
+"Change the platform to a web application."
+
+Return:
+
+{
+    "intent": "project_change",
+    "target": "platform",
+    "value": "Web application",
+    "confidence": 1.0
+}
+
+
+User:
+
+"Change the difficulty to Advanced."
+
+Return:
+
+{
+    "intent": "project_change",
+    "target": "difficulty",
+    "value": "Advanced",
+    "confidence": 1.0
+}
+
+
+User:
+
+"Change the domain to education."
+
+Return:
+
+{
+    "intent": "project_change",
+    "target": "domain",
+    "value": "Education",
+    "confidence": 1.0
+}
+
+
 For finalize:
+
 intent = finalize.
+
 
 Do not invent a feature that does not exist in the
 conversation when resolving references.
+
 """
 
     prompt = f"""
+
 CURRENT PROJECT:
 
 {project_to_text()}
@@ -793,6 +969,7 @@ CURRENT USER MESSAGE:
 {user_message}
 
 Determine the user's intent.
+
 """
 
     result = ollama_chat(
@@ -809,10 +986,15 @@ Determine the user's intent.
         return data
 
     return {
+
         "intent": "general",
+
         "target": "",
+
         "value": "",
+
         "confidence": 0.0
+
     }
 
 
@@ -823,20 +1005,31 @@ Determine the user's intent.
 def find_feature(feature_text):
 
     if not feature_text:
+
         return None
 
     feature_text = feature_text.strip().lower()
 
-    for feature in st.session_state.project[
-        "features"
-    ]:
+    for feature in st.session_state.project["features"]:
 
         existing = feature.lower()
 
         if (
             feature_text == existing
             or feature_text in existing
-            or existing in feature_text
+        ):
+
+            return feature
+
+        feature_name = existing.split(
+            "—",
+            1
+        )[0].strip()
+
+        if (
+            feature_text == feature_name
+            or feature_text in feature_name
+            or feature_name in feature_text
         ):
 
             return feature
@@ -852,9 +1045,87 @@ def add_feature(feature):
 
     feature = feature.strip()
 
+    # ========================================================
+    # AUTOMATIC FEATURE GENERATION
+    # ========================================================
+
     if not feature:
 
-        return False
+        prompt = f"""
+
+CURRENT PROJECT:
+
+{project_to_text()}
+
+The user wants to add a new feature but did not
+specify what the feature should be.
+
+Think like a professional project advisor.
+
+Suggest ONE useful new feature that:
+
+1. Fits the current project's domain.
+
+2. Fits the current target users.
+
+3. Is genuinely useful.
+
+4. Does not duplicate an existing feature.
+
+5. Is realistic for a student project.
+
+6. Does not change the project's main purpose.
+
+Return ONLY the feature name.
+
+Do not provide an explanation.
+
+Do not provide a numbered list.
+
+Do not provide multiple options.
+
+"""
+
+        generated_feature = ollama_chat(
+            prompt,
+            """
+
+You are an expert project architecture advisor.
+
+Choose one useful feature for the current project.
+
+The feature must be specific to the project,
+not a generic feature.
+
+Return ONLY the feature name.
+
+"""
+        )
+
+        if generated_feature.startswith(
+            "GROQ_ERROR:"
+        ):
+
+            return None
+
+        feature = generated_feature.strip()
+
+        # Remove markdown formatting if the model adds it
+        feature = re.sub(
+            r"^[#*\-\d.\s]+",
+            "",
+            feature
+        ).strip()
+
+        # Remove accidental explanation after newline
+        feature = feature.split(
+            "\n",
+            1
+        )[0].strip()
+
+    # ========================================================
+    # CHECK DUPLICATE
+    # ========================================================
 
     existing = find_feature(
         feature
@@ -862,13 +1133,77 @@ def add_feature(feature):
 
     if existing:
 
-        return False
+        return None
+
+    # ========================================================
+    # GENERATE FEATURE DESCRIPTION
+    # ========================================================
+
+    prompt = f"""
+
+CURRENT PROJECT:
+
+{project_to_text()}
+
+NEW FEATURE:
+
+{feature}
+
+Create a concise professional description for this feature.
+
+Explain:
+
+1. What the feature does.
+2. How it works in this project.
+3. Why it is useful for the target users.
+
+Return ONLY the feature description.
+
+Keep it student-friendly and specific to this project.
+
+Do not introduce unrelated functionality.
+
+"""
+
+    description = ollama_chat(
+        prompt,
+        """
+
+You are a project architecture advisor.
+
+Describe the requested feature specifically for
+the current project.
+
+Do not change the project domain.
+Do not invent unrelated functionality.
+
+Return only a concise feature description.
+
+"""
+    )
+
+    if description.startswith(
+        "GROQ_ERROR:"
+    ):
+
+        description = (
+            "Provides useful functionality "
+            "that supports the project's main goal."
+        )
+
+    description = description.strip()
+
+    feature_entry = (
+        f"{feature} — {description}"
+    )
 
     st.session_state.project[
         "features"
-    ].append(feature)
+    ].append(
+        feature_entry
+    )
 
-    return True
+    return feature_entry
 
 
 # ============================================================
@@ -921,6 +1256,7 @@ def process_chat(user_message):
         )
     ).strip()
 
+
     # ========================================================
     # FINALIZE
     # ========================================================
@@ -930,21 +1266,26 @@ def process_chat(user_message):
         st.session_state.locked = True
 
         return """
+
 Your project has been finalized and locked. 🔒
 
 The latest project state will now be used for
 the final blueprint and PDF.
+
 """
+
 
     # ========================================================
     # BLOCK MODIFICATION AFTER LOCK
     # ========================================================
 
     modification_intents = [
+
         "add_feature",
         "remove_feature",
         "modify_feature",
         "project_change"
+
     ]
 
     if (
@@ -953,10 +1294,13 @@ the final blueprint and PDF.
     ):
 
         return """
+
 🔒 This project is currently locked.
 
 Unlock the project before making changes.
+
 """
+
 
     # ========================================================
     # ADD FEATURE
@@ -964,30 +1308,66 @@ Unlock the project before making changes.
 
     if intent == "add_feature":
 
+        # If user did not specify a feature,
+        # automatically generate one.
         if not target:
 
-            return """
-I couldn't identify the feature you want to add.
+            added = add_feature(
+                ""
+            )
 
-Please tell me the feature name.
+            if added:
+
+                feature_name = added.split(
+                    "—",
+                    1
+                )[0].strip()
+
+                description = added.split(
+                    "—",
+                    1
+                )[1].strip()
+
+                return (
+                    f"💡 I thought of a useful feature for your project.\n\n"
+                    f"✅ Added **{feature_name}** to the project.\n\n"
+                    f"**What it does:** {description}\n\n"
+                    "The Core Features section in the "
+                    "Blueprint has also been updated."
+                )
+
+            return """
+
+I couldn't generate a suitable new feature right now.
+
+Please try again.
+
 """
 
+        # User specified the feature
         added = add_feature(
             target
         )
 
         if added:
 
+            description = added.split(
+                "—",
+                1
+            )[1].strip()
+
             return (
                 f"✅ Added **{target}** to the project.\n\n"
-                "I changed only the requested feature. "
-                "The rest of the project was preserved."
+                f"**What it does:** {description}\n\n"
+                "The Core Features section in the "
+                "Blueprint has also been updated."
             )
 
         return (
             f"That feature already exists in the project: "
             f"**{target}**."
         )
+
 
     # ========================================================
     # REMOVE FEATURE
@@ -998,7 +1378,9 @@ Please tell me the feature name.
         if not target:
 
             return """
+
 I couldn't identify which feature you want to remove.
+
 """
 
         removed = remove_feature(
@@ -1017,6 +1399,208 @@ I couldn't identify which feature you want to remove.
             "in the current project features."
         )
 
+
+    # ========================================================
+    # PROJECT FIELD CHANGE
+    # ========================================================
+
+    if intent == "project_change":
+
+        target_lower = target.lower()
+
+
+        # ----------------------------------------------------
+        # TARGET USERS
+        # ----------------------------------------------------
+
+        if (
+            target_lower in [
+                "target_users",
+                "target users",
+                "target audience",
+                "audience",
+                "users",
+                "user"
+            ]
+            or "target" in target_lower
+            or "audience" in target_lower
+        ):
+
+            if not value:
+
+                return """
+
+Please tell me who the new target audience should be.
+
+"""
+
+            st.session_state.project[
+                "target_users"
+            ] = value
+
+            return (
+                "✅ Target audience updated successfully.\n\n"
+                f"**New Target Users:** {value}\n\n"
+                "The Project Blueprint has been updated."
+            )
+
+
+        # ----------------------------------------------------
+        # DOMAIN
+        # ----------------------------------------------------
+
+        if (
+            target_lower == "domain"
+            or "domain" in target_lower
+        ):
+
+            if not value:
+
+                return """
+
+Please tell me the new project domain.
+
+"""
+
+            st.session_state.project[
+                "domain"
+            ] = value
+
+            return (
+                f"✅ Domain updated to **{value}**.\n\n"
+                "The Project Blueprint has been updated."
+            )
+
+
+        # ----------------------------------------------------
+        # PLATFORM
+        # ----------------------------------------------------
+
+        if (
+            target_lower == "platform"
+            or "platform" in target_lower
+        ):
+
+            if not value:
+
+                return """
+
+Please tell me the new platform.
+
+"""
+
+            st.session_state.project[
+                "platform"
+            ] = value
+
+            return (
+                f"✅ Platform updated to **{value}**.\n\n"
+                "The Project Blueprint has been updated."
+            )
+
+
+        # ----------------------------------------------------
+        # DIFFICULTY
+        # ----------------------------------------------------
+
+        if (
+            target_lower == "difficulty"
+            or "difficulty" in target_lower
+        ):
+
+            if not value:
+
+                return """
+
+Please tell me the new difficulty level.
+
+"""
+
+            st.session_state.project[
+                "difficulty"
+            ] = value
+
+            return (
+                f"✅ Difficulty updated to **{value}**.\n\n"
+                "The Project Blueprint has been updated."
+            )
+
+
+        # ----------------------------------------------------
+        # SOLUTION
+        # ----------------------------------------------------
+
+        if (
+            target_lower == "solution"
+            or "solution" in target_lower
+        ):
+
+            if not value:
+
+                return """
+
+Please tell me the new solution.
+
+"""
+
+            st.session_state.project[
+                "solution"
+            ] = value
+
+            return (
+                "✅ Project solution updated successfully.\n\n"
+                "The Project Blueprint has been updated."
+            )
+
+
+        # ----------------------------------------------------
+        # PROBLEM
+        # ----------------------------------------------------
+
+        if (
+            target_lower == "problem"
+            or "problem" in target_lower
+        ):
+
+            if not value:
+
+                return """
+
+Please tell me the new problem statement.
+
+"""
+
+            st.session_state.project[
+                "problem"
+            ] = value
+
+            return (
+                "✅ Problem statement updated successfully.\n\n"
+                "The Project Blueprint has been updated."
+            )
+
+
+        return """
+
+I understood that you want to change the project,
+
+but I couldn't identify which project field should change.
+
+Try:
+
+"Change the target audience to college students."
+
+or
+
+"Change the platform to web application."
+
+or
+
+"Change the difficulty to Advanced."
+
+"""
+
+
     # ========================================================
     # MODIFY FEATURE
     # ========================================================
@@ -1026,8 +1610,10 @@ I couldn't identify which feature you want to remove.
         if not target or not value:
 
             return """
+
 Please tell me which feature you want to change
 and what you want to change it to.
+
 """
 
         existing = find_feature(
@@ -1040,20 +1626,74 @@ and what you want to change it to.
                 "features"
             ].index(existing)
 
+            # Generate explanation for modified feature
+            prompt = f"""
+
+CURRENT PROJECT:
+
+{project_to_text()}
+
+UPDATED FEATURE:
+
+{value}
+
+Write a concise description explaining:
+
+1. What the updated feature does.
+
+2. How it works in this project.
+
+3. Why it is useful.
+
+Return only the description.
+
+"""
+
+            description = ollama_chat(
+                prompt,
+                """
+
+You are a project architecture advisor.
+
+Describe the modified feature specifically
+for the current project.
+
+Return only the feature description.
+
+"""
+            )
+
+            if description.startswith(
+                "GROQ_ERROR:"
+            ):
+
+                description = (
+                    "Provides the requested functionality "
+                    "within the project."
+                )
+
+            description = description.strip()
+
+            new_feature = (
+                f"{value} — {description}"
+            )
+
             st.session_state.project[
                 "features"
-            ][index] = value
+            ][index] = new_feature
 
             return (
                 f"✅ Changed **{existing}** "
                 f"to **{value}**.\n\n"
-                "The rest of the project remains unchanged."
+                f"**What it does:** {description}\n\n"
+                "The Blueprint has been updated."
             )
 
         return (
             f"I couldn't find **{target}** "
             "in the current project."
         )
+
 
     # ========================================================
     # REJECT / DON'T LIKE FEATURE
@@ -1072,9 +1712,12 @@ and what you want to change it to.
             )
 
         return """
+
 I understand. Tell me which feature you don't like,
 and I can remove or replace it.
+
 """
+
 
     # ========================================================
     # RAG CONTEXT
@@ -1082,10 +1725,13 @@ and I can remove or replace it.
 
     documents, metadatas = retrieve_context(
         f"""
+
 {user_message}
 
 Current project:
+
 {project_to_text()}
+
 """,
         top_k=4
     )
@@ -1094,11 +1740,13 @@ Current project:
         documents
     )
 
+
     # ========================================================
     # NORMAL PROJECT CHAT
     # ========================================================
 
     system_prompt = """
+
 You are IdeaForge AI.
 
 You are having a continuous conversation about ONE
@@ -1130,9 +1778,11 @@ give genuinely different alternatives related
 to THIS project's domain.
 
 Be technically accurate and student-friendly.
+
 """
 
     prompt = f"""
+
 CURRENT PROJECT:
 
 {project_to_text()}
@@ -1157,6 +1807,7 @@ Answer the user's question clearly.
 
 Do not rewrite the entire project unless the user
 specifically asks for the full structure.
+
 """
 
     return ollama_chat(
@@ -1233,50 +1884,62 @@ def generate_pdf():
     )
 
     sections = [
+
         (
             "Project Name",
             project["name"]
         ),
+
         (
             "Domain",
             project["domain"]
         ),
+
         (
             "Problem Statement",
             project["problem"]
         ),
+
         (
             "Proposed Solution",
             project["solution"]
         ),
+
         (
             "Target Users",
             project["target_users"]
         ),
+
         (
             "Platform",
             project["platform"]
         ),
+
         (
             "Difficulty",
             project["difficulty"]
         ),
+
         (
             "Feasibility",
             project["feasibility"]
         ),
+
         (
             "RAG",
             project["rag"]
         ),
+
         (
             "Database",
             project["database"]
         ),
+
         (
             "Reasoning",
             project["reasoning"]
         )
+
     ]
 
     for heading, content in sections:
@@ -1303,46 +1966,57 @@ def generate_pdf():
         )
 
     list_sections = [
+
         (
             "AI Features",
             project["ai_features"]
         ),
+
         (
             "Core Features",
             project["features"]
         ),
+
         (
             "Technologies",
             project["technologies"]
         ),
+
         (
             "AI Models",
             project["models"]
         ),
+
         (
             "Data Requirements",
             project["data_requirements"]
         ),
+
         (
             "Modules",
             project["modules"]
         ),
+
         (
             "Workflow",
             project["workflow"]
         ),
+
         (
             "Suggested Improvements",
             project["improvements"]
         ),
+
         (
             "Alternative Ideas",
             project["alternatives"]
         ),
+
         (
             "Required Skills",
             project["skills"]
         )
+
     ]
 
     for heading, items in list_sections:
@@ -1381,6 +2055,7 @@ def generate_pdf():
             table.setStyle(
                 TableStyle(
                     [
+
                         (
                             "GRID",
                             (0, 0),
@@ -1388,30 +2063,35 @@ def generate_pdf():
                             0.5,
                             colors.grey
                         ),
+
                         (
                             "VALIGN",
                             (0, 0),
                             (-1, -1),
                             "TOP"
                         ),
+
                         (
                             "FONT_SIZE",
                             (0, 0),
                             (-1, -1),
                             9
                         ),
+
                         (
                             "TOPPADDING",
                             (0, 0),
                             (-1, -1),
                             6
                         ),
+
                         (
                             "BOTTOMPADDING",
                             (0, 0),
                             (-1, -1),
                             6
                         )
+
                     ]
                 )
             )
@@ -1466,6 +2146,7 @@ with st.sidebar:
 
     st.header("⚙️ Project Controls")
 
+
     # ========================================================
     # NEW PROJECT
     # ========================================================
@@ -1489,7 +2170,9 @@ with st.sidebar:
 
         st.rerun()
 
+
     st.divider()
+
 
     # ========================================================
     # LOCK / UNLOCK
@@ -1516,10 +2199,11 @@ with st.sidebar:
             "✏️ Project Editable"
         )
 
+
     st.divider()
 
     st.caption(
-        f"LLM: {OLLAMA_MODEL}"
+        "LLM: Groq — openai/gpt-oss-120b"
     )
 
     st.caption(
@@ -1660,9 +2344,10 @@ with tab2:
                 '<div class="project-card">'
                 '<b>Current Project:</b> '
                 + st.session_state.project["name"]
-                + "</div>",
+                + '</div>',
                 unsafe_allow_html=True
             )
+
 
         # ====================================================
         # CHAT HISTORY
@@ -1693,6 +2378,7 @@ with tab2:
                     """,
                     unsafe_allow_html=True
                 )
+
 
         # ====================================================
         # CHAT INPUT
@@ -1767,6 +2453,11 @@ with tab3:
 
         st.divider()
 
+
+        # ====================================================
+        # PROBLEM
+        # ====================================================
+
         st.subheader(
             "🎯 Problem"
         )
@@ -1774,6 +2465,11 @@ with tab3:
         st.write(
             project["problem"]
         )
+
+
+        # ====================================================
+        # SOLUTION
+        # ====================================================
 
         st.subheader(
             "💡 Solution"
@@ -1783,49 +2479,62 @@ with tab3:
             project["solution"]
         )
 
-        st.subheader(
-            "👥 Target Users"
-        )
 
-        st.write(
-            project["target_users"]
-        )
+        # ====================================================
+        # TARGET USERS
+        # ====================================================
+
+        st.subheader("👥 Target Users")
+        st.write(st.session_state.project["target_users"])
+
+        # ====================================================
+        # AI FEATURES
+        # ====================================================
 
         st.subheader(
             "🤖 AI Features"
         )
 
-        for item in project[
-            "ai_features"
-        ]:
+        for item in project["ai_features"]:
 
             st.markdown(
                 f"- {item}"
             )
+
+
+        # ====================================================
+        # CORE FEATURES
+        # ====================================================
 
         st.subheader(
             "✨ Core Features"
         )
 
-        for item in project[
-            "features"
-        ]:
+        for item in project["features"]:
 
             st.markdown(
                 f"- {item}"
             )
+
+
+        # ====================================================
+        # AI MODELS
+        # ====================================================
 
         st.subheader(
             "🧠 AI Models"
         )
 
-        for item in project[
-            "models"
-        ]:
+        for item in project["models"]:
 
             st.markdown(
                 f"- {item}"
             )
+
+
+        # ====================================================
+        # RAG
+        # ====================================================
 
         st.subheader(
             "🔎 RAG"
@@ -1835,6 +2544,11 @@ with tab3:
             project["rag"]
         )
 
+
+        # ====================================================
+        # DATABASE
+        # ====================================================
+
         st.subheader(
             "🗄️ Database"
         )
@@ -1843,29 +2557,40 @@ with tab3:
             project["database"]
         )
 
+
+        # ====================================================
+        # TECHNOLOGY
+        # ====================================================
+
         st.subheader(
             "🛠️ Technology Stack"
         )
 
-        for item in project[
-            "technologies"
-        ]:
+        for item in project["technologies"]:
 
             st.markdown(
                 f"- {item}"
             )
+
+
+        # ====================================================
+        # MODULES
+        # ====================================================
 
         st.subheader(
             "📦 Modules"
         )
 
-        for item in project[
-            "modules"
-        ]:
+        for item in project["modules"]:
 
             st.markdown(
                 f"- {item}"
             )
+
+
+        # ====================================================
+        # WORKFLOW
+        # ====================================================
 
         st.subheader(
             "🔄 Workflow"
@@ -1879,31 +2604,43 @@ with tab3:
                 )
             )
 
+
+        # ====================================================
+        # IMPROVEMENTS
+        # ====================================================
+
         st.subheader(
             "📈 Suggested Improvements"
         )
 
-        for item in project[
-            "improvements"
-        ]:
+        for item in project["improvements"]:
 
             st.markdown(
                 f"- {item}"
             )
+
+
+        # ====================================================
+        # ALTERNATIVES
+        # ====================================================
 
         st.subheader(
             "🔀 Alternatives"
         )
 
-        for item in project[
-            "alternatives"
-        ]:
+        for item in project["alternatives"]:
 
             st.markdown(
                 f"- {item}"
             )
 
+
         st.divider()
+
+
+        # ====================================================
+        # FINALIZE
+        # ====================================================
 
         if not st.session_state.locked:
 
